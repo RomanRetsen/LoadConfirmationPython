@@ -1,0 +1,64 @@
+Simply for fun, I've decided to post my 1-st youtube video .
+It's going to be general description of a simple python project.
+1-st disclaimer: I am not professional programmer at the moment, but I was one a while back. Then, I took different
+carrier path and recently decided to try coding craft again because I just enjoy it.
+I've a chosen python as a programming language, so what I'm going to be showing is my old accounting application
+written in Java, rebuilt with python. Fo
+One of the nice benefit of python that is not mention often it that one can you this scripting language
+to build some small accounting application pretty quickly. It's not going to be enterprise grade product
+but it will allow one person to create it in a very short term. As a gui component, I'll be using Qt library,
+or if to be exect Pyqt5.
+PyQt is a set of Python bindings for the cross-platform application framework that combines all the advantages of Qt and Python.
+Recently another version of this module was published and I could easely reshape it for PyQt6,
+but there are few reason why I didn't do it. The main one is that PyQt6 is no longer support rcc utility which allows
+to generate python class that contains binary information about the resources used in the application.
+
+As for database, I decided to use Oracle. I know that for such a small application, using such a powerfull database toolkit
+is a bit overkill, but I can recall specifily PL/SQL standtard of SQL and Oracle is still free to download without any tril
+limitation. The last time I was using oracle at actual work, it was version 8i and a bit of 9i.
+I've managed to install 12c on windows and linux.
+And finally for generating report, I'll be using jasper report.
+Back in the days I was using so called IReport Designer to design my report which I liked a lot,
+but its no longer supported, I think. Starting 2015 Jasper Studio is officially used as jasper report designer.
+
+I'm not going to code live like I was planning originally because I'm a bit pressed for time, but simply walk you
+through the code which will be posted on the github.
+
+Oh, one more reason I've decided to choose project based on PyQt is because I haven't seen detailed videos on youtube on this subject.
+
+In my case this small application will be able to create/store/generate load confirmation.
+A load tender or load confirmation is an agreement of pay between the freight broker and carrier that is legally binding.
+It highlights the necessary details of the load for the carrier.
+The load tender form will include information like the address and hours of operation for the shipping location
+and consignee who will be receiving the load.
+Also, if shipment is of a cross-border nature, custom broker should be mentioned as well.
+
+Let me demonstrate the functionality of the application first and then we'll dive into the code.
+
+1-st thing I think about my little application is the fact I've used multy-threading. This approach allowed
+me to avoid any graphical freeze because of the slow internet connection or lost connection.
+
+2-d. I've disregarded using Qt designer. Main reason is the fact that Qt designer generates very messy code.
+It has not order and it takes more time to re-arrange generated than simply build it from the scratch.
+Also, I was not using any absolute positioning to position gui widgets.
+Controlling the size of widgets can be a bit perplexing in any graphical toolkit,
+but Qt’s approach can be especially confusing. But with practice and studing other's people code,
+you can gain a lot of frelixiblity is sizing the widget and placing widget. All this is accomplished
+with layout managers. Qt presents a few of them. I've used 3 or 4 and combination of them using nesting.
+
+One of the great things about using a layout manager is that when you resize the
+windows, the widgets in the window will all adjust accordingly. However, each layout
+manager has its own way of determining the spacing, alignment, size, or border around
+the widgets.
+
+The syntax used in Qt Style Sheets is inspired by HTML Cascading Style Sheets (CSS).
+
+Event handling in PyQt uses signals and slots to communicate between objects
+
+Even so PyQt5 following core lib. of C++ using Camel case format, for my code I'm trying to follow PEP8 standards.
+
+While timers allow us to defer actions to the event queue and
+can help to prevent awkward pauses in our programs, it’s
+important to understand that functions connected to the timeout
+signal are still executed in—and will therefore block—the main
+execution thread.

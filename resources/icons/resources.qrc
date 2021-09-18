@@ -1,0 +1,20 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file alias="icon_carrier.png">icon_carrier.png</file>
+    <file alias="icon_shipper.png">icon_shipper.png</file>
+    <file alias="icon_consignee.png">icon_consignee.png</file>
+    <file alias="icon_broker.png">icon_broker.png</file>
+    <file alias="icon_loadtype.png">icon_loadtype.png</file>
+    <file alias="icon_loadconfirmation.png">icon_loadconfirmation.png</file>
+    <file alias="icon_users.png">icon_users.png</file>
+    <file alias="icon_exit.png">icon_exit.png</file>
+    <file alias="icon_delete.png">icon_delete.png</file>
+    <file alias="icon_insert.png">icon_insert.png</file>
+    <file alias="icon_modify.png">icon_modify.png</file>
+    <file alias="icon_view.png">icon_view.png</file>
+    <file alias="icon_refresh.png">icon_refresh.png</file>
+    <file alias="icon_currency.png">icon_currency.png</file>
+    <file alias="icon_my_password.png">icon_my_password.png</file>
+    <file alias="icon_user_password.png">icon_user_password.png</file>
+</qresource>
+</RCC>
