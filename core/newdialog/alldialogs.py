@@ -2220,10 +2220,8 @@ class NewLoadConfirmationDialog(qtw.QDialog):
                 lccreatedby=
                 self.input_loadconfirmation_instance.lccreatedby
             )
-            operation_returm_code = self.loadconfirmation_queries.deleteLoadconfirmation(
-                self.delete_loadconfirmation_instance,
-                self.chosen_shippers,
-                self.chosen_consignees
+            operation_returm_code = self.loadconfirmation_queries.delete_loadconfirmation(
+                self.delete_loadconfirmation_instance
             )
             if operation_returm_code == 0:
                 qtw.QMessageBox(

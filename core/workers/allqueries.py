@@ -1,9 +1,9 @@
 """allqueries module is similar to allworkers module but without multi-threading
 
-allqueries module contains SQL queries that are not quick running and not time consuting,
+allqueries module contains SQL queries that are quick running and not time consuming,
 meaning not required to be executed in separate threads.
-They are responsible for creating object instance based on id, or populating widgets (for isntance combo-box)
-with some data
+They are responsible for obtaining and creating object instance based on id,
+or populating widgets (for example combo-box) with some data.
 These are: LoadConfirmationWorker, BrokerWorker, CarrierWroker, ConsgineeWorker,
             CurrencyWorker, LoadTypeWroker, ShipperWorker, UsersWorker,
             LoadCofirmationConnectToDatabase, GenerateReportWorker
@@ -29,6 +29,7 @@ class LoadConfirmationsQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def loads_count(self):
+        """Function returns number of records in loadconfirmation table"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM loadconfirmation')
@@ -44,6 +45,12 @@ class LoadConfirmationsQueries(QGraphicsObject):
 
 
     def get_loadconfirmation_byid(self, loadconfirmationid:str) -> LoadConfirmationInstance:
+        """ Function creates load confirmation instance
+
+
+        Function extract one record of specific load confirmation based on load confirmation id.
+        Then it creates and returns instance of the class LoadConfirmation based on this information
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -92,10 +99,11 @@ class LoadConfirmationsQueries(QGraphicsObject):
         finally:
             my_curr.close()
 
-    #These are functions used to fill up comboboxes in NewLoadConfirmationDialog
-    #
-    # function returns tuple of LoadTypeInstances
     def get_all_loadtypes(self) -> list:
+        """Function returns all load types
+
+         Function returns list of LoadTypeInstance for all load type
+         """
         list_of_load_type_instances = []
         try:
             my_curr = self.app_connection.cursor()
@@ -126,6 +134,10 @@ class LoadConfirmationsQueries(QGraphicsObject):
 
 
     def get_all_currencies(self) -> list:
+        """Function returns all currencies
+
+         Function returns list of CurrencyInstance for all currencies
+         """
         list_of_currency_instances = []
         try:
             my_curr = self.app_connection.cursor()
@@ -157,6 +169,10 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_carriers(self) -> list:
+        """Function returns all carriers
+
+         Function returns list of CarrierInstance for all carriers
+         """
         all_carriers = []
         try:
             my_curr = self.app_connection.cursor()
@@ -198,6 +214,10 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_shippers(self) -> list:
+        """Function returns all shippers
+
+         Function returns list of ShipperInstance for all shippers
+         """
         all_shippers = []
         try:
             my_curr = self.app_connection.cursor()
@@ -240,6 +260,10 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_consignees(self) -> list:
+        """Function returns all consignees
+
+         Function returns list of ConsigneeInstance for all consignees
+         """
         all_consignees = []
         try:
             my_curr = self.app_connection.cursor()
@@ -281,6 +305,10 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_brokers(self) -> list:
+        """Function returns all brokers
+
+         Function returns list of BrokerInstance for all brokers
+         """
         all_consignees = []
         try:
             my_curr = self.app_connection.cursor()
@@ -315,12 +343,11 @@ class LoadConfirmationsQueries(QGraphicsObject):
         finally:
             my_curr.close()
 
-    def delete_loadconfirmation(
-            self,
-            requested_loadconfirmation,
-            chosen_shippers,
-            chosen_consignees
-    ):
+    def delete_loadconfirmation(self, requested_loadconfirmation):
+        """Function deletes load confirmation record
+
+
+        """
         try:
             self.app_connection.autocommit = False
             my_curr = self.app_connection.cursor()
