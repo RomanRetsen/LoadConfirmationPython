@@ -346,7 +346,9 @@ class LoadConfirmationsQueries(QGraphicsObject):
     def delete_loadconfirmation(self, requested_loadconfirmation):
         """Function deletes load confirmation record
 
-
+        Instead of running delete SQL requests, procedure delete_loadconfirmation
+        from SUPPORT_PACKAGE is called. This procedure performs appropriate cleanup
+        from a few tables
         """
         try:
             self.app_connection.autocommit = False
@@ -395,6 +397,11 @@ class LoadConfirmationsQueries(QGraphicsObject):
             chosen_shippers,
             chosen_consignees
     ):
+        """Function inserts load confirmation record
+
+        Instead of running insert SQL requests, procedure insert_loadconfirmation
+        from SUPPORT_PACKAGE is called.
+        """
         try:
             self.app_connection.autocommit = False
             my_curr = self.app_connection.cursor()
@@ -470,6 +477,12 @@ class LoadConfirmationsQueries(QGraphicsObject):
             chosen_shippers,
             chosen_consignees
     ):
+        """Function modifies load confirmation record
+
+        Instead of running update SQL requests, procedure update_loadconfirmation_proc
+        from SUPPORT_PACKAGE is called. This procedure performs appropriate cleanup
+        from a few tables
+        """
         try:
             self.app_connection.autocommit = False
             my_curr = self.app_connection.cursor()
@@ -529,6 +542,14 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_shippers_by_lcid(self, loadconfirmationid) -> list:
+        """Function returns all shippers related to specific load confirmation record
+
+        Function returns data in a form of list of tuples. Tuple contains instance of
+        ShipperRefInstance and ShipperInstance.
+        Because one load confirmation might have a few shippers, this functionality is achieved
+        by table shipper_ref implementing many-to-one relationship between shipper_ref table
+        and loadconfirmation table and shipper_ref table and shipper table.
+        """
         return_list = []
         try:
             my_curr = self.app_connection.cursor()
@@ -544,7 +565,6 @@ class LoadConfirmationsQueries(QGraphicsObject):
                 "and sr.lcid = "
                 +  str(loadconfirmationid)
             )
-            # Generating list of tuples - [(ShipperRefInstance, ShipperInstance), ......]
             while True:
                 one_row = my_curr.fetchone()
                 if one_row is None:
@@ -588,6 +608,14 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_all_consignees_by_lcid(self, loadconfirmationid) -> list:
+        """Function returns all consignees related to specific load confirmation record
+
+        Function returns data in a form of list of tuples. Tuple contains instance of
+        ConsigneeRefInstance and ConsigneeInstance.
+        Because one load confirmation might have a few consignees, this functionality is achieved
+        by table consignee_ref implementing many-to-one relationship between shipper_ref table
+        and loadconfirmation table and shipper_ref table and shipper table.
+        """
         return_list = []
         try:
             my_curr = self.app_connection.cursor()
@@ -647,6 +675,7 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_carrier_by_lcid(self, loadconfirmationid) -> CarrierInstance:
+        """Function returns carrier related to specific load confirmation record"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -684,6 +713,7 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_broker_by_lcid(self, loadconfirmationid) -> BrokerInstance:
+        """Function returns broker related to specific load confirmation record"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -715,6 +745,7 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_currency_by_lcid(self, loadconfirmationid) -> CurrencyInstance:
+        """Function returns currency related to specific load confirmation record"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -744,6 +775,7 @@ class LoadConfirmationsQueries(QGraphicsObject):
             my_curr.close()
 
     def get_loadtype_by_lcid(self, loadconfirmationid) -> LoadTypeInstance:
+        """Function returns load type related to specific load confirmation record"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -769,230 +801,6 @@ class LoadConfirmationsQueries(QGraphicsObject):
         finally:
             my_curr.close()
 
-    def users_count(self):
-        try:
-            my_curr = self.app_connection.cursor()
-            my_curr.execute('select count(*) from users')
-            user_fetch_result = my_curr.fetchone()
-            return user_fetch_result[0]
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(error.code, error.message)
-        # log this error
-        finally:
-            my_curr.close()
-
-    def get_user_byid(self, userid:str) -> UserInstance:
-        try:
-            my_curr = self.app_connection.cursor()
-            my_curr.execute('SELECT id, fname, sname, password FROM users WHERE id = ' + userid)
-            one_row = my_curr.fetchone()
-            if one_row is None:
-                self.update_windowmessage_signal.emit(-100000, 'No data available')
-                return 1
-            else:
-                return UserInstance(
-                    userid=one_row[0],
-                    userfname=one_row[1],
-                    usersname=one_row[2],
-                    password=one_row[3]
-                )
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return 1
-        finally:
-            my_curr.close()
-
-    def delete_user(self, requestedUser):
-        try:
-            my_curr = self.app_connection.cursor()
-            my_curr.execute('SELECT count(*) FROM users WHERE id = ' + str(requestedUser.userid))
-            one_row = my_curr.fetchone()
-            if one_row[0]==1 and requestedUser.userfname!='Administrator':
-                my_curr.execute(
-                    'SELECT count(*) from loadconfirmation l '
-                    'WHERE l.lccreatedby = '
-                    + str(requestedUser.userid))
-                one_row = my_curr.fetchone()
-                if one_row[0] == 0:
-                    my_curr.execute(
-                        'DELETE FROM users WHERE  id = '
-                        + str(requestedUser.userid)
-                    )
-                    my_curr.execute(
-                        'SELECT count(*) FROM users WHERE id = '
-                        + str(requestedUser.userid)
-                    )
-                    one_row = my_curr.fetchone()
-                    if one_row[0] == 0:
-                        self.update_windowmessage_signal.emit(100002, 'Operation completed successfully')
-                        return 0
-                    else:
-                        self.update_windowmessage_signal.emit(-100000, 'Error deleting data')
-                        return 1
-                else:
-                    self.update_windowmessage_signal.emit(
-                        -100000,
-                        'Error deleting data. '
-                        'There is(are) record(s) in main table using data from this record'
-                    )
-                    return 1
-            else:
-                self.update_windowmessage_signal.emit(
-                    -100000,
-                    'No data for deletion available '
-                    'or attempting to delete Administator'
-                )
-                return 1
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return 1
-        finally:
-            my_curr.close()
-
-    def modify_user(self, requestedUser):
-        try:
-            my_curr = self.app_connection.cursor()
-            return_value = my_curr.var(cx_Oracle.NUMBER)
-            # function "change" from package "U" (inside database scheme)
-            # is checking if user with updated name is already exist
-            my_curr.callfunc('SUPPORT_PACKAGE.modify_user', return_value,
-                             [
-                                 requestedUser.userid,
-                                 requestedUser.userfname,
-                                 requestedUser.usersname
-                             ])
-            # VERY IMPORTANT!!!
-            # oracle function return 1 in case of success , 0 - fail
-            if return_value.getvalue() == 1:
-                self.update_windowmessage_signal.emit(100002, 'Operation completed successfully')
-                return 0
-            elif return_value.getvalue() == 0:
-                self.update_windowmessage_signal.emit(-100000,
-                                                      'Error updating data. '
-                                                      'Check if updated name already exist'
-                                                      )
-                return 1
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return -1
-        finally:
-            my_curr.close()
-
-    def insert_user(self, requestedUser):
-        try:
-            my_curr = self.app_connection.cursor()
-            return_value = my_curr.var(cx_Oracle.NUMBER)
-            # function "change" from package "U" (inside database scheme)
-            # is checking if user with updated name is already exist
-            password_hexdigesty = hashlib.sha256(requestedUser.password.encode()).hexdigest()
-            execute_func = my_curr.callfunc('SUPPORT_PACKAGE.insert_user', return_value,
-                                            [
-                                                requestedUser.userfname,
-                                                requestedUser.usersname,
-                                                password_hexdigesty
-                                            ])
-            # VERY IMPORTANT!!!
-            # oracle function return 0 in case of  fail to insert
-            # or id of the newerly inserted user in case of success
-            if return_value.getvalue() != 0:
-                requestedUser.userid = return_value.getvalue()
-                requestedUser.password = password_hexdigesty
-                self.update_windowmessage_signal.emit(100002, 'Operation completed successfully')
-                return 0
-            else:
-                self.update_windowmessage_signal.emit(-100000,
-                                                      'Error inserting data. '
-                                                      'Check if insert user already exist'
-                                                      )
-                return 1
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return -1
-        finally:
-            my_curr.close()
-
-    def modify_login_user_password(self, old_password, new_password):
-        try:
-            my_curr = self.app_connection.cursor()
-            return_value_param = my_curr.var(cx_Oracle.NUMBER)
-            my_curr.callfunc('SUPPORT_PACKAGE.modify_loginuser_password',
-                             return_value_param,
-                             [
-                                 hashlib.sha256(old_password.encode()).hexdigest(),
-                                 hashlib.sha256(new_password.encode()).hexdigest()
-                             ])
-            return_value = return_value_param.getvalue()
-            if return_value == -2:
-                self.update_windowmessage_signal.emit(
-                    -100000,
-                    'Error changing password \n'
-                    'Old password does not match.'
-                )
-                return 1
-            elif return_value == -1:
-                self.update_windowmessage_signal.emit(
-                    -100000,
-                    'Error changing password. \n'
-                    'User info was corrupted.'
-                )
-                return 1
-            elif return_value == 1:
-                self.update_windowmessage_signal.emit(
-                    100002,
-                    'Operation completed successfully\n'
-                    'New password was set.'
-                )
-                return 0
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return -1
-        finally:
-            my_curr.close()
-
-    def modify_user_password_byid(self, requested_user , new_password):
-        try:
-            my_curr = self.app_connection.cursor()
-            return_value_param = my_curr.var(cx_Oracle.NUMBER)
-            my_curr.callfunc('SUPPORT_PACKAGE.modify_user_password_byid',
-                             return_value_param,
-                             [
-                                 requested_user.userid,
-                                 hashlib.sha256(new_password.encode()).hexdigest()
-                             ])
-            return_value = return_value_param.getvalue()
-            if return_value == -1:
-                self.update_windowmessage_signal.emit(
-                    -100000,
-                    'Error changing password. \n'
-                    'User info was corrupted.'
-                )
-                return 1
-            elif return_value == 1:
-                self.update_windowmessage_signal.emit(
-                    100002,
-                    'Operation completed successfully\n'
-                    'New password was set.'
-                )
-                return 0
-        except cx_Oracle.Error as exception:
-            error, = exception.args
-            self.update_windowmessage_signal.emit(-100000, 'Error has occurred executing query. Check your log.')
-            # log
-            return -1
-        finally:
-            my_curr.close()
-
 
 class UsersQueries(QGraphicsObject):
 
@@ -1003,6 +811,7 @@ class UsersQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def users_count(self):
+        """Function return number of registered users"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('select count(*) from users')
@@ -1016,6 +825,7 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def get_user_byid(self, userid:str) -> UserInstance:
+        """Function return user's record based on users's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT id, fname, sname, password FROM users WHERE id = ' + userid)
@@ -1039,6 +849,11 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def delete_user(self, requestedUser):
+        """Function deletes user based on user's ID
+
+        Function disregards "delete user" request if there is at least
+        one load confirmation record create by this user
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM users WHERE id = ' + str(requestedUser.userid))
@@ -1088,6 +903,11 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_user(self, requestedUser):
+        """Function modifies user
+
+        Instead of running update SQL requests, procedure modify_user
+        from SUPPORT_PACKAGE is called.
+        """
         try:
             my_curr = self.app_connection.cursor()
             return_value = my_curr.var(cx_Oracle.NUMBER)
@@ -1119,6 +939,11 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def insert_user(self, requestedUser):
+        """Function inserts new user
+
+        Instead of running insert SQL requests, procedure insert_user
+        from SUPPORT_PACKAGE is called.
+        """
         try:
             my_curr = self.app_connection.cursor()
             return_value = my_curr.var(cx_Oracle.NUMBER)
@@ -1154,6 +979,7 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_login_user_password(self, old_password, new_password):
+        """Function updates/modify current/logged-in user's password"""
         try:
             my_curr = self.app_connection.cursor()
             return_value_param = my_curr.var(cx_Oracle.NUMBER)
@@ -1194,6 +1020,10 @@ class UsersQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_user_password_byid(self, requested_user , new_password):
+        """Function updates/modify user's password based on user's ID
+
+        This function is available to administrator only
+        """
         try:
             my_curr = self.app_connection.cursor()
             return_value_param = my_curr.var(cx_Oracle.NUMBER)
@@ -1236,6 +1066,7 @@ class ShipperQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def shippers_count(self):
+        """Function return number of registered shippers"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM shipper')
@@ -1250,6 +1081,7 @@ class ShipperQueries(QGraphicsObject):
             my_curr.close()
 
     def get_shipper_by_id(self, shipperid:str) -> ShipperInstance:
+        """Function return shipper's record based on shipper's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1287,6 +1119,11 @@ class ShipperQueries(QGraphicsObject):
 
 
     def delete_shipper(self, requested_shipper):
+        """Function deletes shipper based on shipper's ID
+
+        Function disregards "delete shipper" request if there is at least
+        one load confirmation record related to this shipper
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1342,6 +1179,7 @@ class ShipperQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_shipper(self, requested_shipper):
+        """Function modifies shipper based on shipper's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1406,6 +1244,10 @@ class ShipperQueries(QGraphicsObject):
 
 
     def insert_shipper(self, requested_shipper):
+        """Function inserts shipper into the system
+
+        Function performs check if specific shipper name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1476,6 +1318,7 @@ class LoadTypeQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def types_count(self):
+        """Function return number of registered load types"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM loadtype')
@@ -1490,6 +1333,7 @@ class LoadTypeQueries(QGraphicsObject):
             my_curr.close()
 
     def get_loadtype_byid(self, typeid) -> LoadTypeInstance:
+        """Function return load type record based on load type ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1516,6 +1360,11 @@ class LoadTypeQueries(QGraphicsObject):
 
 
     def delete_loadtype(self, requested_loadtype):
+        """Function deletes load type based on load type ID
+
+        Function disregards "delete load type" request if there is at least
+        one load confirmation record related to this load type
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1569,6 +1418,7 @@ class LoadTypeQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_loadtype(self, requested_loadtype):
+        """Function modifies load type based on load type ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1612,6 +1462,10 @@ class LoadTypeQueries(QGraphicsObject):
 
 
     def insert_loadtype(self, requested_loadtype):
+        """Function inserts load type into the system
+
+        Function performs check if specific load type name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1674,6 +1528,7 @@ class ConsigneeQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def consignees_count(self):
+        """Function return number of registered currencies"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM consignee')
@@ -1688,6 +1543,7 @@ class ConsigneeQueries(QGraphicsObject):
             my_curr.close()
 
     def get_consignee_byid(self, consigneeid:str) -> ConsigneeInstance:
+        """Function return consignee record based on consginee's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1725,6 +1581,11 @@ class ConsigneeQueries(QGraphicsObject):
 
 
     def delete_consignee(self, requested_consignee):
+        """Function deletes consignee based on consginee's ID
+
+        Function disregards "delete consginee" request if there is at least
+        one load confirmation record related to this consignee
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1780,6 +1641,7 @@ class ConsigneeQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_consignee(self, requested_consignee):
+        """Function modifies consignee based on consignee's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1844,6 +1706,10 @@ class ConsigneeQueries(QGraphicsObject):
 
 
     def insert_consignee(self, requested_consignee):
+        """Function inserts consignee into the system
+
+        Function performs check if specific consignee name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1914,6 +1780,7 @@ class CurrencyQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def currencies_count(self):
+        """Function return number of registered currencies"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM currency')
@@ -1928,6 +1795,7 @@ class CurrencyQueries(QGraphicsObject):
             my_curr.close()
 
     def get_currency_byid(self, currencyid) -> CurrencyInstance:
+        """Function return currency record based on currency ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -1956,6 +1824,11 @@ class CurrencyQueries(QGraphicsObject):
 
 
     def delete_currency(self, requested_currency):
+        """Function deletes currency based on currency ID
+
+        Function disregards "delete currency" request if there is at least
+        one load confirmation record related to this load type
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2009,6 +1882,7 @@ class CurrencyQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_currency(self, requested_currency):
+        """Function modifies currency based on currency ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2058,6 +1932,10 @@ class CurrencyQueries(QGraphicsObject):
 
 
     def insert_currency(self, requested_currency):
+        """Function inserts currency into the system
+
+        Function performs check if specific currency name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2123,6 +2001,7 @@ class BrokerQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def brokers_count(self):
+        """Function return number of registered brokers"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM custombroker')
@@ -2138,6 +2017,7 @@ class BrokerQueries(QGraphicsObject):
             my_curr.close()
 
     def get_broker_by_id(self, brokerid:str) -> BrokerInstance:
+        """Function return broker record based on brtoker's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2169,6 +2049,11 @@ class BrokerQueries(QGraphicsObject):
 
 
     def delete_broker(self, requested_broker):
+        """Function deletes broker based on broker's ID
+
+        Function disregards "delete broker" request if there is at least
+        one load confirmation record related to this broker
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2224,6 +2109,7 @@ class BrokerQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_broker(self, requested_broker):
+        """Function modifies broker based on broker's ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2278,6 +2164,10 @@ class BrokerQueries(QGraphicsObject):
 
 
     def insert_broker(self, requested_broker):
+        """Function inserts broker into the system
+
+        Function performs check if specific broker name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2344,6 +2234,7 @@ class CarrierQueries(QGraphicsObject):
         self.app_connection = app_connection
 
     def carriers_count(self):
+        """Function return number of registered carriers"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute('SELECT count(*) FROM carrier')
@@ -2358,6 +2249,7 @@ class CarrierQueries(QGraphicsObject):
             my_curr.close()
 
     def get_carrier_byid(self, carrierid:str) -> CarrierInstance:
+        """Function return carrier record based on carrier ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2395,6 +2287,11 @@ class CarrierQueries(QGraphicsObject):
 
 
     def delete_carrier(self, requested_carrier):
+        """Function deletes carrier based on carrier ID
+
+        Function disregards "delete carrier" request if there is at least
+        one load confirmation record related to this carrier
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2450,6 +2347,7 @@ class CarrierQueries(QGraphicsObject):
             my_curr.close()
 
     def modify_carrier(self, requested_carrier):
+        """Function modifies carrier based on carrier ID"""
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2514,6 +2412,10 @@ class CarrierQueries(QGraphicsObject):
 
 
     def insert_carrier(self, requested_carrier):
+        """Function inserts carrier into the system
+
+        Function performs check if specific carrier name hasn't already been used
+        """
         try:
             my_curr = self.app_connection.cursor()
             my_curr.execute(
@@ -2573,12 +2475,3 @@ class CarrierQueries(QGraphicsObject):
             return -1
         finally:
             my_curr.close()
-
-
-
-
-
-
-
-
-
