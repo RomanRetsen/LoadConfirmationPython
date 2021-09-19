@@ -1,3 +1,12 @@
+"""Module allchoosedialog contains dialog classes
+
+All classes in this modules are subclasses from QDialog.
+These dialogs responsible for choosing  shipper, consignee, broker and carrier information
+during steps of building one load confirmation.
+Each dialog contains combo-box with the list of all entities (for instance carriers)
+and central data_frame that displays break-down information of currently chosen entity in the combo-box.
+These are: ChooseBrokerDialog, ChooseCarrierDialog, ChooseConsigneeDialog, ChooseShipperDialog.
+"""
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
 from core.newdialog.choosedialog.alldataframes import (BrokerFrame, CarrierFrame,

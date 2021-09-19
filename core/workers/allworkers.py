@@ -476,7 +476,12 @@ class UsersWorker(QThread):
 
 
 class GenerateReportWorker(QThread):
-    """This Thread generates pdf report"""
+    """This Thread generates pdf report
+
+    Class demonstrates generating the report that requires database connection.
+    It's not used in the Load Confirmation generation
+    but kept as template for future new reporting features
+    """
 
     report_generation_done = pyqtSignal(str)
     update_windowmessage_signal = pyqtSignal(int, str)

@@ -2,12 +2,8 @@
 
 allqueries module contains SQL queries that are quick running and not time consuming,
 meaning not required to be executed in separate threads.
-They are responsible for obtaining and creating object instance based on id,
+They are responsible for obtaining and creating object instances based on ID,
 or populating widgets (for example combo-box) with some data.
-These are: LoadConfirmationWorker, BrokerWorker, CarrierWroker, ConsgineeWorker,
-            CurrencyWorker, LoadTypeWroker, ShipperWorker, UsersWorker,
-            LoadCofirmationConnectToDatabase, GenerateReportWorker
-
 """
 import hashlib
 import cx_Oracle

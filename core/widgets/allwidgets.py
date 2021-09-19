@@ -1,6 +1,6 @@
 """This module contains all QWidget classes that are used as MDIChildWindows for the main MDIWindow
 
-These are: BrokerWidget, CarrierWidget, ConsigneeWeidget, CurrencyWidget,
+These are: BrokerWidget, CarrierWidget, ConsigneeWidget, CurrencyWidget,
             LoadConfirmationWidget, LoadTypeWidget, ShipperWidget
 """
 import loadconfirmation_settings as LCSettings
@@ -91,7 +91,6 @@ class BrokerWidget(qtw.QWidget):
             self.progress_bar.setRange(0, 1)
         self.statusbar.showMessage('...')
 
-
     def setup_gui_object_events(self):
         self.create_menu_actions()
         self.broker_table.cellDoubleClicked.connect(self.view_broker_window)
@@ -176,7 +175,6 @@ class BrokerWidget(qtw.QWidget):
         inserteditemcontact.setData(qtc.Qt.DisplayRole, broker_instance.custombrokercontact)
         inserteditemcontact.setTextAlignment(qtc.Qt.AlignCenter)
         self.broker_table.setItem(row_number, 5, inserteditemcontact)
-
 
     def create_menus(self):
         menubar = qtw.QMenuBar()
@@ -277,7 +275,6 @@ class BrokerWidget(qtw.QWidget):
             self.add_row_topof_table(insert_broker_window.new_broker_instance)
         else:
             print('cancel')
-
 
     def modify_broker_window(self):
         selected_row = self.broker_table.currentRow()

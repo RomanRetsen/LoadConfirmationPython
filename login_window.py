@@ -1,4 +1,4 @@
-"""This module solely  building login window"""
+"""This module solely responsible for  building login window"""
 import hashlib
 import cx_Oracle
 import PyQt5.QtWidgets as qtw

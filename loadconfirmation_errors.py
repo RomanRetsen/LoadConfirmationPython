@@ -1,4 +1,5 @@
-""""""
+"""Module contains custom errors"""
+
 class MissingBrokerInfoError(Exception):
 
     def __init__(self, loadconfirmation_queries):
@@ -10,10 +11,11 @@ class MissingBrokerInfoError(Exception):
 class MissingCarrierInfoError(Exception):
 
     def __init__(self, loadconfirmation_queries):
-        loadconfirmation_queries.update_windowmessage_signal.emit(
-            -100000,
-            'You must add carrier to newly created load confirmation'
-        )
+        print("you must add carrier to the newly load confirmation")
+        # loadconfirmation_queries.update_windowmessage_signal.emit(
+        #     -100000,
+        #     'You must add carrier to newly created load confirmation'
+        # )
 
 class MissingShipperInfoError(Exception):
 

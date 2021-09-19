@@ -1,3 +1,19 @@
+"""Module contains universal frames for displaying data
+
+All classes in this module are subclassing from QFrame parent.
+They are used in 2 other modules: allchoosedialog and alldialogs.
+Classes from allchoosedialog module use frame classes from alldataframes module
+to interactively display break-down information on
+specific consignee, shipper, carrier and broker, picked
+by the user from the combobox during building Load Confirmation.
+Class NewLoadConfirmationDialog from alldialogs module injects these frames
+during the process of building Load Confirmation.
+Every frame has a "delete" button which is either visible or not,
+depending on the place the frame is used.
+Delete button is displayed and used when frame is injected in NewLoadConfirmation Dialog
+during steps of building new load confirmation.
+Though it's not visible when it's used by dialog classes in allchooseddialog
+"""
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
 from all_persistence_class import ConsigneeRefInstance
@@ -364,7 +380,6 @@ class ShipperFrame(qtw.QFrame):
         # and ignored on adding new shipper to load confirmation
         if self.input_shipperref_instance:
             self.input_shipperref_instance.shipperdate = self.shipper_date_editline.date().toPyDate()
-
 
 class CarrierFrame(qtw.QFrame):
 

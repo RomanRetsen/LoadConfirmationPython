@@ -1,3 +1,15 @@
+"""Module alldialogs contains dialog classes
+
+All classes in this modules are subclasses from QDialog.
+These dialogs responsible for viewing/adding/modifying/deleting
+records from key tables in the database.
+Central function in each class is called process_X_data (for instance process_loadconfirmation_data)
+It responsible to processing data keyed in the visual widget by the user and running related
+SQL function from allqueries module
+These are: NewBrokerDialog, NewCarrierDialog, NewConsigneeDialog,
+           NewCurrencyDialog, NewLoadTypeDialog, NewShipperDialog,
+           NewLoadConfirmationDialog, NewPasswordDialog, NewLoadConfirmationDialog.
+"""
 import time
 import os
 import shutil
