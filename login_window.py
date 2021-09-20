@@ -148,7 +148,7 @@ class LoginWindow(qtw.QDialog):
             out_value_is_privilege = my_curr.var(cx_Oracle.NUMBER)
             out_value_is_privilege.setvalue(0, -1)
 
-            my_curr.callfunc('SUPPORT_PACKAGE.parol_func', return_value,
+            my_curr.callfunc('SUPPORT_PACKAGE.password_func', return_value,
                              [
                                  selected_user_id,
                                  selected_user_password,
